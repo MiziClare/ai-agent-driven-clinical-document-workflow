@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: medical-doc-agent-workflow
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
+          temperature: 0.8
+  datasource:
+    url: jdbc:mysql://localhost:3309/course_ehealth?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+    username: root
+    password: Zxy@5628610
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor: DEBUG
+    # com.example.com: DEBUG
