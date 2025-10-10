@@ -20,3 +20,7 @@ logging:
   level:
     org.springframework.ai.chat.client.advisor: DEBUG
     # com.example.com: DEBUG
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
