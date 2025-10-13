@@ -1,3 +1,42 @@
 ### 测试 agent 查询天气
-GET http://localhost:8080/ai/agent?prompt=帮我查一下合肥明天的天气&chatId=123
+GET http://localhost:8080/ai/agent?prompt=帮我查一下合肥明天的天气
 Accept: text/html
+
+###
+
+### 测试 agent 查询用户基本信息
+GET http://localhost:8080/ai/agent?prompt=请根据用户ID为1，查出该用户的基本信息表的全部内容
+Accept: text/html
+
+###
+
+### 测试 agent 生成 prescription 和 requisition
+GET http://localhost:8080/ai/agent?prompt=请根据用户ID为1的基本信息表，随机生成一张prescription和一张requisition
+Accept: text/html
+
+###
+
+### 测试查找最近的药店和化验所
+GET http://localhost:8080/ai/agent?prompt=查出离clientId为1的用户家庭地址最近的三个药店和三个化验所
+Accept: text/html
+
+###
+
+### 测试 agent 存药店和化验所信息
+GET http://localhost:8080/ai/agent?prompt=用户id为1，请把药店名称为“同仁堂”，地址为“合肥市包河区”，化验所名称为“合肥中心化验所”，地址为“合肥市高新区”存到我的数据库
+Accept: text/html
+
+###
+
+### 测试 agent 查询 完整的 prescription 和 requisition
+GET http://localhost:8080/ai/agent?prompt=请根据用户ID为1，查出该用户完整的prescription和requisition
+Accept: text/html
+
+###
+
+### 测试发送传真
+GET http://localhost:8080/ai/agent?prompt=请把用户ID为1的prescription和requisition发送到药店“同仁堂”和化验所“合肥中心化验所”的传真
+Accept: text/html
+
+
+
