@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Qualifier;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -117,7 +116,7 @@ public class WorkflowService {
             isBlank(r.getLabName()) || isBlank(r.getLabAddress())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pharmacy/Lab selection incomplete");
         }
-        String msg = String.format("成功发送传真到药房[%s, %s] 与 实验室[%s, %s]。",
+        String msg = String.format("Successfully sent fax to pharmacy [%s, %s] and laboratory [%s, %s].",
                 p.getPharmacyName(), p.getPharmacyAddress(), r.getLabName(), r.getLabAddress());
         return new FaxResponse(true, msg);
     }

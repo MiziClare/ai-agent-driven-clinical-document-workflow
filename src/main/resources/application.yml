@@ -15,6 +15,10 @@ spring:
     password: Zxy@5628610
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+google:
+  maps:
+    api:
+      key: ${GOOGLE_MAPS_API_KEY}
 
 logging:
   level:

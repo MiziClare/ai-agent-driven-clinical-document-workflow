@@ -103,7 +103,7 @@ public class DocTools {
         r.setDateRequested(parseOrDefault(dateRequested, LocalDate.now()));
         r.setPriority(priority);
         r.setStatus((status == null || status.isBlank()) ? "NEW" : status);
-        // INIT: 空字符串 -> 存 null
+        // INIT: empty string -> store null
         r.setLabName(blankToNull(labName));
         r.setLabAddress(blankToNull(labAddress));
         r.setResultDate(parseOrNull(resultDate));
