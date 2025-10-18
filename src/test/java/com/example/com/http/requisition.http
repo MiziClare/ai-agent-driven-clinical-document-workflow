@@ -1,0 +1,71 @@
+# 替换 base URL（若运行在本地默认端口为 8080）
+# 示例: http://localhost:8080
+# 使用前请将下面的 {{requisitionId}} 替换为真实 id（POST 返回或 DB 中已有的 id）
+
+### 0) ### 根据 clientId 查询最新的requisition
+GET http://localhost:8080/api/requisitions/client/1/latest
+Accept: application/json
+
+### 1) GET all requisitions
+GET http://localhost:8080/api/requisitions
+Accept: application/json
+
+### 2) GET requisition by id (替换 {{requisitionId}})
+GET http://localhost:8080/api/requisitions/{{requisitionId}}
+Accept: application/json
+
+### 3) GET requisitions by client id (示例 clientId = 123)
+GET http://localhost:8080/api/requisitions/client/1
+Accept: application/json
+
+### 4) POST create new requisition
+# 如果后端自动生成 id，可删除 requisitionId 字段；若需要手动指定，可修改为唯一值并在后续请求中使用
+POST http://localhost:8080/api/requisitions
+Content-Type: application/json
+
+{
+  "requisitionId": "req-001",
+  "clientId": 1,
+  "requesterId": "user-01",
+  "department": "Cardiology",
+  "testType": "Blood Test",
+  "testCode": "BT-100",
+  "clinicalInfo": "Routine check",
+  "dateRequested": "2025-10-18T10:00:00Z",
+  "priority": "Normal",
+  "status": "Pending",
+  "labName": "Central Lab",
+  "labAddress": "123 Lab St",
+  "resultDate": null,
+  "notes": "Initial request"
+}
+
+### 5) PUT update existing requisition (将 {{requisitionId}} 替换为实际 id，或直接使用上面 req-001)
+PUT http://localhost:8080/api/requisitions
+Content-Type: application/json
+
+{
+  "requisitionId": "req-001",
+  "clientId": 1,
+  "requesterId": "user-01",
+  "department": "2222222222222222 Cardiology",
+  "testType": "Blood Test",
+  "testCode": "BT-100",
+  "clinicalInfo": "Updated clinical info",
+  "dateRequested": "2025-10-18T10:00:00Z",
+  "priority": "High",
+  "status": "InProgress",
+  "labName": "Central Lab",
+  "labAddress": "123 Lab St",
+  "resultDate": null,
+  "notes": "Updated via test"
+}
+
+### 6) DELETE requisition by id (替换 {{requisitionId}})
+DELETE http://localhost:8080/api/requisitions/{{requisitionId}}
+Accept: application/json
+
+# 使用说明：
+# 1) 先执行 POST（或确保已有一条记录），记下响应中的 requisitionId。
+# 2) 将 {{requisitionId}} 替换为该 id，依次运行 GET/PUT/DELETE 验证行为。
+

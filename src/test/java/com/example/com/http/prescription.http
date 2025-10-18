@@ -1,0 +1,75 @@
+### 根据 clientId 查询最新处方
+GET http://localhost:8080/api/prescriptions/client/1/latest
+Accept: application/json
+
+###
+
+### 查询所有处方
+GET http://localhost:8080/api/prescriptions
+Accept: application/json
+
+###
+
+### 根据处方ID查询
+GET http://localhost:8080/api/prescriptions/p-1
+Accept: application/json
+
+###
+
+### 根据 clientId 查询处方
+GET http://localhost:8080/api/prescriptions/client/1
+Accept: application/json
+
+###
+
+### 新增处方
+POST http://localhost:8080/api/prescriptions
+Content-Type: application/json
+
+{
+  "prescriptionId": "p-100",
+  "clientId": 1,
+  "prescriberId": "dr-123",
+  "medicationName": "阿莫西林",
+  "medicationStrength": "500mg",
+  "medicationForm": "片剂",
+  "dosageInstructions": "每日三次，每次1片，饭后服用",
+  "quantity": 30,
+  "refillsAllowed": 1,
+  "datePrescribed": "2025-10-01T00:00:00Z",
+  "expiryDate": "2026-04-01T00:00:00Z",
+  "pharmacyName": "同仁堂",
+  "pharmacyAddress": "合肥市中心",
+  "status": "active",
+  "notes": "测试处方"
+}
+
+###
+
+### 更新处方
+PUT http://localhost:8080/api/prescriptions
+Content-Type: application/json
+
+{
+  "prescriptionId": "p-100",
+  "clientId": 1,
+  "prescriberId": "dr-123",
+  "medicationName": "阿莫西林",
+  "medicationStrength": "500mg",
+  "medicationForm": "片剂",
+  "dosageInstructions": "每日两次，每次1片，饭后服用",
+  "quantity": 20,
+  "refillsAllowed": 0,
+  "datePrescribed": "2025-10-01T00:00:00Z",
+  "expiryDate": "2026-04-01T00:00:00Z",
+  "pharmacyName": "同仁堂",
+  "pharmacyAddress": "合肥市中心",
+  "status": "updated",
+  "notes": "更新测试"
+}
+
+###
+
+### 删除处方
+DELETE http://localhost:8080/api/prescriptions/p-100
+Accept: application/json

@@ -9,4 +9,5 @@ public interface IPrescriptionService {
     int addPrescription(Prescription prescription);
     int updatePrescription(Prescription prescription);
     int deletePrescription(String prescriptionId);
+    Prescription getLatestPrescriptionByClientId(Integer clientId);
 }

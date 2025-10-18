@@ -9,4 +9,5 @@ public interface IRequisitionService {
     int addRequisition(Requisition requisition);
     int updateRequisition(Requisition requisition);
     int deleteRequisition(String requisitionId);
+    Requisition getLatestRequisitionByClientId(Integer clientId);
 }

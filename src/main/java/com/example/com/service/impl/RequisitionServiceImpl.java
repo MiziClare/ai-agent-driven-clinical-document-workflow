@@ -38,4 +38,9 @@ public class RequisitionServiceImpl implements IRequisitionService {
     public int deleteRequisition(String requisitionId) {
         return requisitionMapper.delete(requisitionId);
     }
+
+    @Override
+    public Requisition getLatestRequisitionByClientId(Integer clientId) {
+        return requisitionMapper.selectLatestByClientId(clientId);
+    }
 }

@@ -12,6 +12,9 @@ public interface PrescriptionMapper {
     @Select("SELECT * FROM course_ehealth_Prescription WHERE client_id = #{clientId}")
     List<Prescription> selectByClientId(@Param("clientId") Integer clientId);
 
+    @Select("SELECT * FROM course_ehealth_Prescription WHERE client_id = #{clientId} ORDER BY date_prescribed DESC LIMIT 1")
+    Prescription selectLatestByClientId(@Param("clientId") Integer clientId);
+
     @Insert("INSERT INTO course_ehealth_Prescription " +
             "(prescription_id, client_id, prescriber_id, medication_name, medication_strength, medication_form, dosage_instructions, quantity, refills_allowed, date_prescribed, expiry_date, pharmacy_name, pharmacy_address, status, notes) " +
             "VALUES (#{prescriptionId}, #{clientId}, #{prescriberId}, #{medicationName}, #{medicationStrength}, #{medicationForm}, #{dosageInstructions}, #{quantity}, #{refillsAllowed}, #{datePrescribed}, #{expiryDate}, #{pharmacyName}, #{pharmacyAddress}, #{status}, #{notes})")

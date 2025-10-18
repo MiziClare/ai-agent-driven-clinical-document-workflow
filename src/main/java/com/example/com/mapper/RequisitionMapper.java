@@ -24,4 +24,7 @@ public interface RequisitionMapper {
 
     @Delete("DELETE FROM course_ehealth_Requisition WHERE requisition_id=#{requisitionId}")
     int delete(@Param("requisitionId") String requisitionId);
+
+    @Select("SELECT * FROM course_ehealth_Requisition WHERE client_id = #{clientId} ORDER BY date_requested DESC LIMIT 1")
+    Requisition selectLatestByClientId(@Param("clientId") Integer clientId);
 }
