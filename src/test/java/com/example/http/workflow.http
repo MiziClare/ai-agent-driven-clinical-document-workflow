@@ -1,0 +1,99 @@
+@baseUrl = http://localhost:8080
+@clientId = 1
+
+### INIT: 初始化工作流（会在缺失时生成随机处方与检验单）
+POST {{baseUrl}}/api/ehealth/init?clientId={{clientId}}
+Accept: application/json
+
+> {%
+    client.test("INIT: 200 OK", function() {
+        client.assert(response.status === 200, "Unexpected status: " + response.status);
+    });
+    const initBody = response.body;
+    client.assert(!!initBody.client, "client should be present");
+%}
+###
+
+### GET_DOCUMENTS: 获取最新处方与检验单
+GET {{baseUrl}}/api/ehealth/documents?clientId={{clientId}}
+Accept: application/json
+
+> {%
+    client.test("GET_DOCUMENTS: 200 OK", function() {
+        client.assert(response.status === 200, "Unexpected status: " + response.status);
+    });
+    const docsBody = JSON.parse(response.body);
+    client.assert(docsBody.prescription || docsBody.requisition, "documents should exist");
+%}
+
+###
+
+### FIND_NEARBY: 模拟附近的药房与实验室，并提取首个候选写入全局变量
+GET {{baseUrl}}/api/ehealth/nearby?clientId={{clientId}}
+Accept: application/json
+
+> {%
+    client.test("FIND_NEARBY: 200 OK", function() {
+        client.assert(response.status === 200, "Unexpected status: " + response.status);
+    });
+    const nearbyBody = response.body;
+    client.assert(Array.isArray(nearbyBody.pharmacies) && nearbyBody.pharmacies.length > 0, "pharmacies should not be empty");
+    client.assert(Array.isArray(nearbyBody.labs) && nearbyBody.labs.length > 0, "labs should not be empty");
+
+    // 选取第一个候选
+    const ph = nearbyBody.pharmacies[0];
+    const lb = nearbyBody.labs[0];
+
+    client.global.set("pharmacyName", ph.name);
+    client.global.set("pharmacyAddress", ph.address);
+    client.global.set("labName", lb.name);
+    client.global.set("labAddress", lb.address);
+%}
+
+### SAVE_SELECTION: 保存选择\(\->\)应返回更新后的处方与检验单
+POST {{baseUrl}}/api/ehealth/selection
+Content-Type: application/json
+Accept: application/json
+
+{
+  "clientId": {{clientId}},
+  "pharmacyName": "同仁堂",
+  "pharmacyAddress": "合肥市庐阳区",
+  "labName": "第一人民医院",
+  "labAddress": "合肥市蜀山区"
+}
+
+> {%
+    client.test("SAVE_SELECTION: 200 OK", function() {
+        client.assert(response.status === 200, "Unexpected status: " + response.status);
+    });
+    const selBody = response.body;
+    client.assert(selBody.prescription && selBody.requisition, "documents should be present after save");
+    client.assert(selBody.prescription.pharmacyName === client.global.get("pharmacyName"), "pharmacyName not saved");
+    client.assert(selBody.prescription.pharmacyAddress === client.global.get("pharmacyAddress"), "pharmacyAddress not saved");
+    client.assert(selBody.requisition.labName === client.global.get("labName"), "labName not saved");
+    client.assert(selBody.requisition.labAddress === client.global.get("labAddress"), "labAddress not saved");
+%}
+
+### SEND_FAX: 发送传真（应成功）
+POST {{baseUrl}}/api/ehealth/send-fax?clientId={{clientId}}
+Accept: application/json
+
+> {%
+    client.test("SEND_FAX: 200 OK", function() {
+        client.assert(response.status === 200, "Unexpected status: " + response.status);
+    });
+    const faxBody = JSON.parse(response.body);
+    client.assert(!!faxBody.success, "fax should be successful");
+    client.assert(typeof faxBody.message === "string" && faxBody.message.length > 0, "message should be present");
+%}
+
+### NEGATIVE: 缺少 clientId 时应返回 400
+POST {{baseUrl}}/api/ehealth/init
+Accept: application/json
+
+> {%
+    client.test("INIT without clientId: 400 BAD_REQUEST", function() {
+        client.assert(response.status === 400, "Expected 400, got: " + response.status);
+    });
+%}

@@ -1,4 +1,4 @@
-package com.example.config;
+package com.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;

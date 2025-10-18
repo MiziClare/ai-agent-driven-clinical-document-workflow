@@ -62,7 +62,7 @@ Content-Type: application/json
 }
 
 ### 6) DELETE requisition by id (替换 {{requisitionId}})
-DELETE http://localhost:8080/api/requisitions/{{requisitionId}}
+DELETE http://localhost:8080/api/requisitions/req-001
 Accept: application/json
 
 # 使用说明：
