@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -20,21 +22,35 @@ public class WorkflowService {
     private final IClientService clientService;
     private final IPrescriptionService prescriptionService;
     private final IRequisitionService requisitionService;
+    @Qualifier("serviceChatClient")
+    private final ChatClient serviceChatClient;
 
     // INIT: return client info; if no latest documents exist, generate and persist random ones
     public InitResponse init(Integer clientId) {
         Client client = ensureClient(clientId);
 
-        // If no documents yet, auto-generate and persist
+        // If no documents yet, ask agent (tools) to create; fallback to local
         Prescription latestP = prescriptionService.getLatestPrescriptionByClientId(clientId);
         Requisition latestR = requisitionService.getLatestRequisitionByClientId(clientId);
-        if (latestP == null) {
-            Prescription p = generateRandomPrescription(client);
-            prescriptionService.addPrescription(p);
-        }
-        if (latestR == null) {
-            Requisition r = generateRandomRequisition(client);
-            requisitionService.addRequisition(r);
+        if (latestP == null || latestR == null) {
+            try {
+                String prompt = buildInitToolPrompt(clientId, latestP == null, latestR == null);
+                serviceChatClient
+                        .prompt()
+                        .user(prompt)
+                        .call()
+                        .content();
+            } catch (Exception e) {
+                // fallback to local generators
+                if (latestP == null) {
+                    Prescription p = generateRandomPrescription(client);
+                    prescriptionService.addPrescription(p);
+                }
+                if (latestR == null) {
+                    Requisition r = generateRandomRequisition(client);
+                    requisitionService.addRequisition(r);
+                }
+            }
         }
 
         return new InitResponse(client);
@@ -202,5 +218,26 @@ public class WorkflowService {
         // light obfuscation to avoid echoing full address in stub data
         int idx = Math.min(6, base.length());
         return base.substring(0, idx) + "***, " + suffix;
+    }
+
+    // Build concise English prompt for agent to call the tools
+    private String buildInitToolPrompt(Integer clientId, boolean needPrescription, boolean needRequisition) {
+        return String.join("\n",
+                "Task: Initialize e-health documents for the specified patient.",
+                "Patient: clientId = " + clientId + ".",
+                "Actions:",
+                (needPrescription ? "- Create exactly one Prescription with realistic but generic medical content.\n" : "")
+                        + (needRequisition ? "- Create exactly one Requisition with realistic but generic medical content.\n" : ""),
+                "Requirements:",
+                "- The fields must conform to tables course_ehealth_prescription and course_ehealth_requisition.",
+                "- Set pharmacy_name and pharmacy_address as empty strings.",
+                "- Set lab_name and lab_address as empty strings.",
+                "- Use ISO-8601 dates when needed (yyyy-MM-dd).",
+                "- Avoid PHI/PII; no markdown; do not echo the prompt.",
+                "Tools to use:",
+                "- savePrescription(clientId, prescriberId, medicationName, medicationStrength, medicationForm, dosageInstructions, quantity, refillsAllowed, datePrescribed, expiryDate, pharmacyName, pharmacyAddress, status, notes)",
+                "- saveRequisition(clientId, requesterId, department, testType, testCode, clinicalInfo, dateRequested, priority, status, labName, labAddress, resultDate, notes)",
+                "Output: Reply with OK after the tools have completed."
+        );
     }
 }

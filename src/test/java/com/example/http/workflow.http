@@ -12,6 +12,7 @@ Accept: application/json
     const initBody = response.body;
     client.assert(!!initBody.client, "client should be present");
 %}
+
 ###
 
 ### GET_DOCUMENTS: 获取最新处方与检验单

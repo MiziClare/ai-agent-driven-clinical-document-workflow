@@ -4,70 +4,141 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
+import com.example.service.IClientService;
+import com.example.service.IPrescriptionService;
+import com.example.service.IRequisitionService;
+import com.example.entity.po.Client;
+import com.example.entity.po.Prescription;
+import com.example.entity.po.Requisition;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class DocTools {
 
-//    @Tool
-//    public String helloTool(String name) {
-//        return "Hello, " + name + "!";
-//    }
-//
-//    @Tool(description = "查询城市北京明天的天气")
-//    public String getBeijingWeather(@ToolParam(description = "要查询的城市名", required = false) String city) {
-//        return city + " 明天多云转晴，最高气温 27°C";
-//    }
-//
-//    @Tool(description = "查询城市合肥明天的天气")
-//    public String getHeifeiWeather(@ToolParam(description = "要查询的城市名", required = false) String city) {
-//        return city + " 明天下雨，最高气温 21°C";
-//    }
-//
-//    // 根据给出的用户ID查出指定用户的基本信息表的全部内容
-//    @Tool(description = "根据给出的用户ID查出指定用户的基本信息表的全部内容")
-//    public String getUserInfo(@ToolParam(description = "用户ID", required = true) int clientId) {
-//        // Here you would add code to fetch user info from a database
-//        return "用户ID: " + clientId + ", 姓名: 张三, 年龄: 30, 性别: 男, 诊断: 感冒";
-//    }
-//
-//    // 生成 prescription 和 requisition
-//    @Tool(description = "根据指定用户的基本信息表随机生成一张的prescription和一张requisition")
-//    public String generateDocuments(@ToolParam(description = "用户ID", required = true) int clientId) {
-//        // Here you would add code to generate the documents based on userInfo
-//        return "已为用户生成了新的prescription和requisition。";
-//    }
-//
-//    // 根据指定用户的家庭地址查出离其最近的三个的pharmacy和三个lab机构
-//    @Tool(description = "根据指定用户的家庭地址查出离其最近的三个的pharmacy和三个lab机构")
-//    public String findNearbyFacilities(@ToolParam(description = "用户ID", required = true) int clientId) {
-//        // Here you would add code to find nearby facilities based on user address
-//        return "附近的药店: 药店A, 地址A; 药店B, 地址B; 药店C, 地址C. 附近的化验所: 化验所X, 地址X; 化验所Y, 地址Y; 化验所Z, 地址Z.";
-//    }
-//
-//    // 存地址到数据库
-//    @Tool(description = "把发来的pharmacy_name, pharmacy_address, lab_name, lab_address存到对应用户的prescription和requisition数据库")
-//    public String saveAddress(@ToolParam(description = "用户ID", required = true) int clientId,
-//                           @ToolParam(description = "药店名称", required = true) String pharmacy_name,
-//                           @ToolParam(description = "药店地址", required = true) String pharmacy_address,
-//                           @ToolParam(description = "化验所名称", required = true) String lab_name,
-//                           @ToolParam(description = "化验所地址", required = true) String lab_address) {
-//        // Here you would add code to save the information to a database
-//        return "信息已保存: 药店 - " + pharmacy_name + ", 地址 - " + pharmacy_address +
-//                "; 化验所 - " + lab_name + ", 地址 - " + lab_address;
-//    }
-//
-//    // 根据指定用户ID查出其完整的prescription和requisition
-//    @Tool(description = "根据指定用户ID查出其完整的prescription和requisition")
-//    public String getDocuments(@ToolParam(description = "用户ID", required = true) int clientId) {
-//        // Here you would add code to fetch the documents from a database
-//        return "用户ID: " + clientId + ", Prescription: [药品A, 2盒, 药品B, 1盒], Requisition: [血常规, 尿常规]";
-//    }
-//
-//    // 根据指定用户ID把其完整的prescription和requisition模拟发送传真到名为pharmacy_name的pharmacy机构和名为lab_name的lab机构
-//    @Tool(description = "根据指定用户ID把其完整的prescription和requisition模拟发送传真到名为pharmacy_name的pharmacy机构和名为lab_name的lab机构")
-//    public String sendFax(@ToolParam(description = "用户ID", required = true) int clientId) {
-//        // Here you would add code to send the documents via fax
-//        return "已将用户ID " + clientId + " 的prescription发送到xxx药店，requisition发送到xxx化验所。";
-//    }
+    // Prepare to persist data using the services
+    private final IClientService clientService;
+    private final IPrescriptionService prescriptionService;
+    private final IRequisitionService requisitionService;
+
+    @Tool(description = "Persist a new prescription into course_ehealth_prescription. " +
+            "Pass empty strings for pharmacyName and pharmacyAddress at INIT.")
+    public String savePrescription(
+            @ToolParam(description = "Client ID", required = true) int clientId,
+            @ToolParam(description = "Prescriber ID", required = true) String prescriberId,
+            @ToolParam(description = "Medication name", required = true) String medicationName,
+            @ToolParam(description = "Medication strength", required = true) String medicationStrength,
+            @ToolParam(description = "Dosage form", required = true) String medicationForm,
+            @ToolParam(description = "Dosage instructions", required = true) String dosageInstructions,
+            @ToolParam(description = "Quantity", required = true) Integer quantity,
+            @ToolParam(description = "Refills allowed", required = false) Integer refillsAllowed,
+            @ToolParam(description = "Date prescribed (yyyy-MM-dd)", required = false) String datePrescribed,
+            @ToolParam(description = "Expiry date (yyyy-MM-dd)", required = false) String expiryDate,
+            @ToolParam(description = "Pharmacy name (pass empty string at INIT)", required = true) String pharmacyName,
+            @ToolParam(description = "Pharmacy address (pass empty string at INIT)", required = true) String pharmacyAddress,
+            @ToolParam(description = "Status (default NEW)", required = false) String status,
+            @ToolParam(description = "Notes", required = false) String notes
+    ) {
+        Client client = clientService.getClientById(clientId);
+        if (client == null) {
+            return "Client not found: " + clientId;
+        }
+
+        Prescription p = new Prescription();
+        p.setPrescriptionId(UUID.randomUUID().toString());
+        p.setClientId(clientId);
+        p.setPrescriberId(prescriberId);
+        p.setMedicationName(medicationName);
+        p.setMedicationStrength(medicationStrength);
+        p.setMedicationForm(medicationForm);
+        p.setDosageInstructions(dosageInstructions);
+        p.setQuantity(quantity != null ? quantity : 30);
+        p.setRefillsAllowed(refillsAllowed != null ? refillsAllowed : 0);
+        p.setDatePrescribed(parseOrDefault(datePrescribed, LocalDate.now()));
+        p.setExpiryDate(parseOrDefault(expiryDate, LocalDate.now().plusDays(90)));
+        // INIT: 空字符串 -> 存 null
+        p.setPharmacyName(blankToNull(pharmacyName));
+        p.setPharmacyAddress(blankToNull(pharmacyAddress));
+        p.setStatus((status == null || status.isBlank()) ? "NEW" : status);
+        p.setNotes(notes);
+
+        prescriptionService.addPrescription(p);
+        return "OK";
+    }
+
+    @Tool(description = "Persist a new requisition into course_ehealth_requisition. " +
+            "Pass empty strings for labName and labAddress at INIT.")
+    public String saveRequisition(
+            @ToolParam(description = "Client ID", required = true) int clientId,
+            @ToolParam(description = "Requester ID", required = true) String requesterId,
+            @ToolParam(description = "Department", required = true) String department,
+            @ToolParam(description = "Test type", required = true) String testType,
+            @ToolParam(description = "Test code", required = true) String testCode,
+            @ToolParam(description = "Clinical information", required = true) String clinicalInfo,
+            @ToolParam(description = "Date requested (yyyy-MM-dd)", required = true) String dateRequested,
+            @ToolParam(description = "Priority (Routine/Urgent)", required = true) String priority,
+            @ToolParam(description = "Status (default NEW)", required = false) String status,
+            @ToolParam(description = "Lab name (pass empty string at INIT)", required = true) String labName,
+            @ToolParam(description = "Lab address (pass empty string at INIT)", required = true) String labAddress,
+            @ToolParam(description = "Result date (yyyy-MM-dd)", required = false) String resultDate,
+            @ToolParam(description = "Notes", required = false) String notes
+    ) {
+        Client client = clientService.getClientById(clientId);
+        if (client == null) {
+            return "Client not found: " + clientId;
+        }
+
+        Requisition r = new Requisition();
+        r.setRequisitionId(UUID.randomUUID().toString());
+        r.setClientId(clientId);
+        r.setRequesterId(requesterId);
+        r.setDepartment(department);
+        r.setTestType(testType);
+        r.setTestCode(testCode);
+        r.setClinicalInfo(clinicalInfo);
+        r.setDateRequested(parseOrDefault(dateRequested, LocalDate.now()));
+        r.setPriority(priority);
+        r.setStatus((status == null || status.isBlank()) ? "NEW" : status);
+        // INIT: 空字符串 -> 存 null
+        r.setLabName(blankToNull(labName));
+        r.setLabAddress(blankToNull(labAddress));
+        r.setResultDate(parseOrNull(resultDate));
+        r.setNotes(notes);
+
+        requisitionService.addRequisition(r);
+        return "OK";
+    }
+
+    // --- helpers ---
+    private static Date parseOrDefault(String yyyyMMdd, LocalDate def) {
+        if (yyyyMMdd == null || yyyyMMdd.isBlank()) {
+            return asDate(def);
+        }
+        try {
+            return asDate(LocalDate.parse(yyyyMMdd));
+        } catch (DateTimeParseException ex) {
+            return asDate(def);
+        }
+    }
+
+    private static Date parseOrNull(String yyyyMMdd) {
+        if (yyyyMMdd == null || yyyyMMdd.isBlank()) return null;
+        try {
+            return asDate(LocalDate.parse(yyyyMMdd));
+        } catch (DateTimeParseException ex) {
+            return null;
+        }
+    }
+
+    private static Date asDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s;
+    }
 }
