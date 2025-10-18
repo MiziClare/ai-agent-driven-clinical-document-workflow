@@ -7,6 +7,7 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class CommonConfiguration {
@@ -35,5 +36,13 @@ public class CommonConfiguration {
                 ) // Configure log Advisor
                 .defaultTools(docTools) // Register tool class
                 .build(); // Build ChatClient instance
+    }
+
+    // 3. Google Maps API WebClient
+    @Bean
+    public WebClient googleWebClient(WebClient.Builder builder) {
+        return builder
+                .baseUrl("https://maps.googleapis.com")
+                .build();
     }
 }

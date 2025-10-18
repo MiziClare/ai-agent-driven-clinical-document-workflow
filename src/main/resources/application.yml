@@ -23,7 +23,8 @@ google:
 logging:
   level:
     org.springframework.ai.chat.client.advisor: DEBUG
-    # com.example.com: DEBUG
+    com.example.service.WorkflowService: DEBUG
+    root: INFO
 
 mybatis:
   configuration:

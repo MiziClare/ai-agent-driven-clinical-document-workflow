@@ -5,7 +5,7 @@ Accept: application/json
 ###
 
 ### 根据ID查询客户
-GET http://localhost:8080/api/clients/2
+GET http://localhost:8080/api/clients/1
 Accept: application/json
 
 ###
@@ -34,5 +34,5 @@ Content-Type: application/json
 ###
 
 ### 删除客户
-DELETE http://localhost:8080/api/clients/51
+DELETE http://localhost:8080/api/clients/1
 Accept: application/json

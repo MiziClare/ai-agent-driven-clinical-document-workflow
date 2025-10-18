@@ -1,0 +1,3 @@
+### Test Google Maps Geocoding API
+GET https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=
+Accept: application/json

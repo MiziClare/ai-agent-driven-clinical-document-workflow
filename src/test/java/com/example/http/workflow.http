@@ -30,6 +30,7 @@ Accept: application/json
 ###
 
 ### FIND_NEARBY: find nearby pharmacies and labs
+### https://localhost:8080/api/ehealth/nearby?clientId=1
 GET {{baseUrl}}/api/ehealth/nearby?clientId={{clientId}}
 Accept: application/json
 
@@ -40,15 +41,6 @@ Accept: application/json
     const nearbyBody = response.body;
     client.assert(Array.isArray(nearbyBody.pharmacies) && nearbyBody.pharmacies.length > 0, "pharmacies should not be empty");
     client.assert(Array.isArray(nearbyBody.labs) && nearbyBody.labs.length > 0, "labs should not be empty");
-
-    // 选取第一个候选
-    const ph = nearbyBody.pharmacies[0];
-    const lb = nearbyBody.labs[0];
-
-    client.global.set("pharmacyName", ph.name);
-    client.global.set("pharmacyAddress", ph.address);
-    client.global.set("labName", lb.name);
-    client.global.set("labAddress", lb.address);
 %}
 
 ###
@@ -72,10 +64,11 @@ Accept: application/json
     });
     const selBody = response.body;
     client.assert(selBody.prescription && selBody.requisition, "documents should be present after save");
-    client.assert(selBody.prescription.pharmacyName === client.global.get("pharmacyName"), "pharmacyName not saved");
-    client.assert(selBody.prescription.pharmacyAddress === client.global.get("pharmacyAddress"), "pharmacyAddress not saved");
-    client.assert(selBody.requisition.labName === client.global.get("labName"), "labName not saved");
-    client.assert(selBody.requisition.labAddress === client.global.get("labAddress"), "labAddress not saved");
+    // 直接与固定值断言
+    client.assert(selBody.prescription.pharmacyName === "同仁堂", "pharmacyName not saved");
+    client.assert(selBody.prescription.pharmacyAddress === "合肥市庐阳区", "pharmacyAddress not saved");
+    client.assert(selBody.requisition.labName === "第一人民医院", "labName not saved");
+    client.assert(selBody.requisition.labAddress === "合肥市蜀山区", "labAddress not saved");
 %}
 
 ###
