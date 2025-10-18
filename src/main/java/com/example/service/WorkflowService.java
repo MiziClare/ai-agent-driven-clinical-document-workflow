@@ -124,6 +124,7 @@ public class WorkflowService {
 
     // ----- helpers -----
 
+    // Ensure client exists; throw 400/404 otherwise
     private Client ensureClient(Integer clientId) {
         if (clientId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId is required");
@@ -135,6 +136,7 @@ public class WorkflowService {
         return c;
     }
 
+    // Fallback random generators for INIT when agent tools fail - Prescription
     private Prescription generateRandomPrescription(Client client) {
         String[] meds = {"Amoxicillin", "Ibuprofen", "Metformin", "Lisinopril", "Atorvastatin"};
         String[] strengths = {"250mg", "500mg", "5mg", "10mg", "20mg"};
@@ -173,6 +175,7 @@ public class WorkflowService {
         return p;
     }
 
+    // Fallback random generators for INIT when agent tools fail - Requisition
     private Requisition generateRandomRequisition(Client client) {
         String[] departments = {"Hematology", "Biochemistry", "Microbiology", "Radiology"};
         String[] testTypes = {"CBC", "CMP", "HbA1c", "Lipid Panel", "Thyroid Panel"};
@@ -205,14 +208,17 @@ public class WorkflowService {
         return r;
     }
 
+    // Convert LocalDate to Date
     private static Date asDate(LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
+    // Check if string is null or blank
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
 
+    // Mask address for stub data
     private static String maskedAddress(String base, String suffix) {
         if (isBlank(base)) return "N/A";
         // light obfuscation to avoid echoing full address in stub data

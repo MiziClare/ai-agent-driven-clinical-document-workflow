@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:8080
 @clientId = 1
 
-### INIT: 初始化工作流（会在缺失时生成随机处方与检验单）
+### INIT: initialize eHealth doc workflow, generate prescription & requisition if not exist
 POST {{baseUrl}}/api/ehealth/init?clientId={{clientId}}
 Accept: application/json
 
@@ -15,7 +15,7 @@ Accept: application/json
 
 ###
 
-### GET_DOCUMENTS: 获取最新处方与检验单
+### GET_DOCUMENTS: get existing prescription & requisition
 GET {{baseUrl}}/api/ehealth/documents?clientId={{clientId}}
 Accept: application/json
 
@@ -29,7 +29,7 @@ Accept: application/json
 
 ###
 
-### FIND_NEARBY: 模拟附近的药房与实验室，并提取首个候选写入全局变量
+### FIND_NEARBY: find nearby pharmacies and labs
 GET {{baseUrl}}/api/ehealth/nearby?clientId={{clientId}}
 Accept: application/json
 
@@ -51,7 +51,9 @@ Accept: application/json
     client.global.set("labAddress", lb.address);
 %}
 
-### SAVE_SELECTION: 保存选择\(\->\)应返回更新后的处方与检验单
+###
+
+### SAVE_SELECTION: save selected pharmacy and lab
 POST {{baseUrl}}/api/ehealth/selection
 Content-Type: application/json
 Accept: application/json
@@ -76,7 +78,9 @@ Accept: application/json
     client.assert(selBody.requisition.labAddress === client.global.get("labAddress"), "labAddress not saved");
 %}
 
-### SEND_FAX: 发送传真（应成功）
+###
+
+### SEND_FAX: send fax to selected pharmacy and lab and show the result
 POST {{baseUrl}}/api/ehealth/send-fax?clientId={{clientId}}
 Accept: application/json
 
@@ -89,7 +93,9 @@ Accept: application/json
     client.assert(typeof faxBody.message === "string" && faxBody.message.length > 0, "message should be present");
 %}
 
-### NEGATIVE: 缺少 clientId 时应返回 400
+###
+
+### NEGATIVE: INIT without clientId should return 400 BAD_REQUEST
 POST {{baseUrl}}/api/ehealth/init
 Accept: application/json
 

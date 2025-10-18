@@ -60,7 +60,7 @@ public class DocTools {
         p.setRefillsAllowed(refillsAllowed != null ? refillsAllowed : 0);
         p.setDatePrescribed(parseOrDefault(datePrescribed, LocalDate.now()));
         p.setExpiryDate(parseOrDefault(expiryDate, LocalDate.now().plusDays(90)));
-        // INIT: 空字符串 -> 存 null
+        // INIT: empty string -> store null
         p.setPharmacyName(blankToNull(pharmacyName));
         p.setPharmacyAddress(blankToNull(pharmacyAddress));
         p.setStatus((status == null || status.isBlank()) ? "NEW" : status);
