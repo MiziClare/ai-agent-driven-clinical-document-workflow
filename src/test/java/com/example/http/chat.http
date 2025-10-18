@@ -1,0 +1,3 @@
+### Test ChatController
+GET http://localhost:8080/ai/chat?prompt=你是什么智能小助手&chatId=123
+Accept: text/html

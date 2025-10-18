@@ -1,0 +1,38 @@
+### 查询所有客户
+GET http://localhost:8080/api/clients
+Accept: application/json
+
+###
+
+### 根据ID查询客户
+GET http://localhost:8080/api/clients/2
+Accept: application/json
+
+###
+
+### 新增客户
+POST http://localhost:8080/api/clients
+Content-Type: application/json
+
+{
+  "name": "测试客户",
+  "email": "test@example.com"
+}
+
+###
+
+### 更新客户
+PUT http://localhost:8080/api/clients
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "client1-updated",
+  "email": "updated@example.com"
+}
+
+###
+
+### 删除客户
+DELETE http://localhost:8080/api/clients/51
+Accept: application/json

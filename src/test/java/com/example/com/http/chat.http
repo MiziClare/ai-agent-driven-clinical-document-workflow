@@ -1,3 +1,0 @@
-### Test ChatController
-GET http://localhost:8080/ai/chat?prompt=Who?%20are%20you&chatId=123
-Accept: text/html
