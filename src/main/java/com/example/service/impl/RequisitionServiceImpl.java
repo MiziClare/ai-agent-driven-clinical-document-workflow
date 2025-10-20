@@ -43,4 +43,11 @@ public class RequisitionServiceImpl implements IRequisitionService {
     public Requisition getLatestRequisitionByClientId(Integer clientId) {
         return requisitionMapper.selectLatestByClientId(clientId);
     }
+
+    @Override
+    public int deleteAllRequisitionsByClientId(Integer clientId) {
+        return requisitionMapper.deleteAllRequisitionsByClientId(clientId);
+    }
+
+
 }

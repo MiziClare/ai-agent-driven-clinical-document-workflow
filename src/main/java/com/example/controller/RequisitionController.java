@@ -79,4 +79,16 @@ public class RequisitionController {
         }
         return result;
     }
+
+    // DELETE /api/requisitions/client/{clientId} - Delete all requisitions by client ID
+    @DeleteMapping("/client/{clientId}")
+    public int deleteAllRequisitionsByClientId(@PathVariable("clientId") Integer clientId) {
+        int result = requisitionService.deleteAllRequisitionsByClientId(clientId);
+        if (result == 0) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND, "No requisitions found for client"
+            );
+        }
+        return result;
+    }
 }

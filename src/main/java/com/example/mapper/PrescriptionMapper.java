@@ -27,4 +27,8 @@ public interface PrescriptionMapper {
 
     @Delete("DELETE FROM course_ehealth_Prescription WHERE prescription_id=#{prescriptionId}")
     int delete(@Param("prescriptionId") String prescriptionId);
+
+    // Delete all prescriptions for a specific client
+    @Delete("DELETE FROM course_ehealth_Prescription WHERE client_id=#{clientId}")
+    int deleteAllPrescriptionsByClientId(@Param("clientId") Integer clientId);
 }

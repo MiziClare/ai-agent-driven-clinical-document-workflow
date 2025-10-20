@@ -78,4 +78,16 @@ public class PrescriptionController {
         }
         return result;
     }
+
+    // DELETE /api/prescriptions/client/{clientId} - Delete all prescriptions by client ID
+    @DeleteMapping("/client/{clientId}")
+    public int deleteAllPrescriptionsByClientId(@PathVariable("clientId") Integer clientId) {
+        int result = prescriptionService.deleteAllPrescriptionsByClientId(clientId);
+        if (result == 0) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND, "No prescriptions found for client"
+            );
+        }
+        return result;
+    }
 }

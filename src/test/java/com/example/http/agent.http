@@ -1,3 +1,5 @@
+### 已作废，请使用 workflow.http 测试 medical doc workflow 功能
+
 ### 测试 agent 查询天气
 GET http://localhost:8080/ai/agent?prompt=帮我查一下合肥明天的天气
 Accept: text/html

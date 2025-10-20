@@ -27,4 +27,8 @@ public interface RequisitionMapper {
 
     @Select("SELECT * FROM course_ehealth_Requisition WHERE client_id = #{clientId} ORDER BY date_requested DESC LIMIT 1")
     Requisition selectLatestByClientId(@Param("clientId") Integer clientId);
+
+    // Delete all requisitions for a specific client
+    @Delete("DELETE FROM course_ehealth_Requisition WHERE client_id=#{clientId}")
+    int deleteAllRequisitionsByClientId(@Param("clientId") Integer clientId);
 }

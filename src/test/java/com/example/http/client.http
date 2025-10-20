@@ -1,3 +1,5 @@
+@clientId = 1
+
 ### 查询所有客户
 GET http://localhost:8080/api/clients
 Accept: application/json
@@ -5,7 +7,27 @@ Accept: application/json
 ###
 
 ### 根据ID查询客户
-GET http://localhost:8080/api/clients/1
+GET http://localhost:8080/api/clients/{{clientId}}
+Accept: application/json
+
+###
+
+### 根据ID查询客户所有的的Prescriptions
+GET http://localhost:8080/api/prescriptions/client/{{clientId}}
+Accept: application/json
+
+### 根据ID查询客户所有的的Requisitions
+GET http://localhost:8080/api/requisitions/client/{{clientId}}
+Accept: application/json
+
+###
+
+### 删除该客户的所有Prescriptions
+DELETE http://localhost:8080/api/prescriptions/client/{{clientId}}
+Accept: application/json
+
+### 删除该客户的所有Requisitions
+DELETE http://localhost:8080/api/requisitions/client/{{clientId}}
 Accept: application/json
 
 ###
@@ -15,7 +37,7 @@ POST http://localhost:8080/api/clients
 Content-Type: application/json
 
 {
-  "name": "测试客户",
+  "firstName": "测试客户",
   "email": "test@example.com"
 }
 
@@ -34,5 +56,5 @@ Content-Type: application/json
 ###
 
 ### 删除客户
-DELETE http://localhost:8080/api/clients/1
+DELETE http://localhost:8080/api/clients/{{clientId}}
 Accept: application/json

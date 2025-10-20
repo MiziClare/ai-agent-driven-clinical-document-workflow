@@ -23,7 +23,7 @@ Accept: application/json
     client.test("GET_DOCUMENTS: 200 OK", function() {
         client.assert(response.status === 200, "Unexpected status: " + response.status);
     });
-    const docsBody = JSON.parse(response.body);
+    const docsBody = response.body;
     client.assert(docsBody.prescription || docsBody.requisition, "documents should exist");
 %}
 

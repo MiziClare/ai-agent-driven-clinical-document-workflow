@@ -42,4 +42,9 @@ public class PrescriptionServiceImpl implements IPrescriptionService {
     public Prescription getLatestPrescriptionByClientId(Integer clientId) {
         return prescriptionMapper.selectLatestByClientId(clientId);
     }
+
+    @Override
+    public int deleteAllPrescriptionsByClientId(Integer clientId) {
+        return prescriptionMapper.deleteAllPrescriptionsByClientId(clientId);
+    }
 }
