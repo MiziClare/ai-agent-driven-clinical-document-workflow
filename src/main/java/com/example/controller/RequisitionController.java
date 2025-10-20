@@ -16,7 +16,6 @@ public class RequisitionController {
     // GET /api/requisitions - Get all requisitions
     @GetMapping
     public List<Requisition> getAllRequisitions() {
-        // 若 mapper/服务不支持 null，可改为新增 getAll 方法
         return requisitionService.getRequisitionsByClientId(null);
     }
 

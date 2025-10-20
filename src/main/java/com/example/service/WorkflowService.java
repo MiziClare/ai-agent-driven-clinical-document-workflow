@@ -97,7 +97,7 @@ public class WorkflowService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client address is empty");
         }
 
-        // 详细的 API Key 调试信息
+        // Log API key presence (not full key) for google maps calls
         boolean hasApiKey = !isBlank(googleApiKey);
         log.info("FIND_NEARBY start: clientId={}, address='{}', apiKeyPresent={}", clientId, client.getAddress(), hasApiKey);
         if (hasApiKey) {
@@ -361,7 +361,7 @@ public class WorkflowService {
     private Mono<Geo> geocode(String address) {
         log.debug("Geocoding address='{}', apiKey present={}", address, !isBlank(googleApiKey));
 
-        // 构建完整的 URL 用于调试
+        // Log full URL with masked API key for debugging
         String fullUrl = String.format("https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s",
                 address.replace(" ", "%20"), googleApiKey);
         log.info("Geocoding URL (masked): https://maps.googleapis.com/maps/api/geocode/json?address={}...&key={}...",
@@ -380,7 +380,7 @@ public class WorkflowService {
                     int results = json.path("results").size();
                     log.debug("Geocode response: status={}, results={}", status, results);
 
-                    // 如果是 REQUEST_DENIED，打印更多调试信息
+                    // If REQUEST_DENIED, log detailed troubleshooting info
                     if ("REQUEST_DENIED".equals(status)) {
                         String errorMessage = json.path("error_message").asText("No error message");
                         log.error("Google Maps API REQUEST_DENIED - Error message: {}", errorMessage);

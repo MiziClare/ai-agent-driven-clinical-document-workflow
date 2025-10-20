@@ -16,7 +16,7 @@ public class PrescriptionController {
     // GET /api/prescriptions - Get all prescriptions
     @GetMapping
     public List<Prescription> getAllPrescriptions() {
-        return prescriptionService.getPrescriptionsByClientId(null); // 若 mapper/服务不支持 null，可改为新增 getAll 方法
+        return prescriptionService.getPrescriptionsByClientId(null);
     }
 
     // GET /api/prescriptions/{prescriptionId} - Get prescription by ID

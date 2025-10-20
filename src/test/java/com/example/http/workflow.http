@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:8080
 @clientId = 1
 
-### INIT: initialize eHealth doc workflow, generate prescription & requisition if not exist
+### ⭐ INIT: initialize eHealth doc workflow, generate prescription & requisition if not exist
 POST {{baseUrl}}/api/ehealth/init?clientId={{clientId}}
 Accept: application/json
 
@@ -15,7 +15,7 @@ Accept: application/json
 
 ###
 
-### GET_DOCUMENTS: get existing prescription & requisition
+### ⭐ GET_DOCUMENTS: get existing prescription & requisition
 GET {{baseUrl}}/api/ehealth/documents?clientId={{clientId}}
 Accept: application/json
 
@@ -29,7 +29,7 @@ Accept: application/json
 
 ###
 
-### FIND_NEARBY: find nearby pharmacies and labs
+### ⭐ FIND_NEARBY: find nearby pharmacies and labs
 ### https://localhost:8080/api/ehealth/nearby?clientId=1
 GET {{baseUrl}}/api/ehealth/nearby?clientId={{clientId}}
 Accept: application/json
@@ -45,7 +45,7 @@ Accept: application/json
 
 ###
 
-### SAVE_SELECTION: save selected pharmacy and lab
+### ⭐ SAVE_SELECTION: save selected pharmacy and lab
 POST {{baseUrl}}/api/ehealth/selection
 Content-Type: application/json
 Accept: application/json
@@ -73,7 +73,7 @@ Accept: application/json
 
 ###
 
-### SEND_FAX: send fax to selected pharmacy and lab and show the result
+### ⭐ SEND_FAX: send fax to selected pharmacy and lab and show the result
 POST {{baseUrl}}/api/ehealth/send-fax?clientId={{clientId}}
 Accept: application/json
 

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ public class WorkflowController {
     @Value("${google.maps.api.key:${google.maps.api-key:}}")
     private String googleApiKey;
 
-    // INIT: initialize workflow for a client
+    // Task 1. INIT: initialize workflow for a client
     @PostMapping("/init")
     public InitResponse init(@RequestParam("clientId") Integer clientId) {
         if (clientId == null) {
@@ -35,7 +34,7 @@ public class WorkflowController {
         return workflowService.init(clientId);
     }
 
-    // GET_DOCUMENTS: return latest Prescription & Requisition for client
+    // Task2 2. GET_DOCUMENTS: return latest Prescription & Requisition for client
     @GetMapping("/documents")
     public DocumentsResponse getDocuments(@RequestParam("clientId") Integer clientId) {
         if (clientId == null) {
@@ -44,7 +43,7 @@ public class WorkflowController {
         return workflowService.getDocuments(clientId);
     }
 
-    // FIND_NEARBY: stubbed nearby search result for pharmacies & labs
+    // Task 3. FIND_NEARBY: stubbed nearby search result for pharmacies & labs
     @GetMapping("/nearby")
     public NearbyResult findNearby(@RequestParam("clientId") Integer clientId) {
         if (clientId == null) {
@@ -53,7 +52,7 @@ public class WorkflowController {
         return workflowService.findNearby(clientId);
     }
 
-    // SAVE_SELECTION: persist chosen pharmacy & lab; return updated documents
+    // Task 4. SAVE_SELECTION: persist chosen pharmacy & lab; return updated documents
     @PostMapping("/selection")
     public DocumentsResponse saveSelection(@RequestBody SelectionRequest request) {
         if (request == null || request.getClientId() == null) {
@@ -62,7 +61,7 @@ public class WorkflowController {
         return workflowService.saveSelection(request);
     }
 
-    // SEND_FAX: simulate faxing documents to chosen pharmacy & lab
+    // Task 5. SEND_FAX: simulate faxing documents to chosen pharmacy & lab
     @PostMapping("/send-fax")
     public FaxResponse sendFax(@RequestParam("clientId") Integer clientId) {
         if (clientId == null) {
@@ -71,7 +70,7 @@ public class WorkflowController {
         return workflowService.sendFax(clientId);
     }
 
-    // 临时调试端点 - 测试 Google Maps API
+    // Temporary: Debug endpoint to test Google Maps Geocoding API integration
     @GetMapping("/debug/google-api")
     public String debugGoogleApi(@RequestParam(defaultValue = "Ottawa, ON") String address) {
         log.info("Debug Google API called with address: {}", address);
