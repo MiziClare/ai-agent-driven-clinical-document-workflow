@@ -113,6 +113,41 @@ public class DocTools {
         return "OK";
     }
 
+    @Tool(description = "Simulate faxing the patient's latest prescription and requisition to the selected pharmacy and laboratory. " +
+            "The tool validates that the latest prescription has pharmacyName and pharmacyAddress, and the latest requisition has labName and labAddress. " +
+            "It returns a strict JSON string: {\"success\": boolean, \"message\": string}.")
+    public String sendFaxForClient(
+            @ToolParam(description = "Client ID", required = true) int clientId
+    ) {
+        Client client = clientService.getClientById(clientId);
+        if (client == null) {
+            return json(false, "Client not found: " + clientId);
+        }
+
+        Prescription p = prescriptionService.getLatestPrescriptionByClientId(clientId);
+        Requisition r = requisitionService.getLatestRequisitionByClientId(clientId);
+
+        if (p == null || r == null) {
+            return json(false, "Documents not ready");
+        }
+
+        String phName = p.getPharmacyName();
+        String phAddr = p.getPharmacyAddress();
+        String labName = r.getLabName();
+        String labAddr = r.getLabAddress();
+
+        if (isBlank(phName) || isBlank(phAddr) || isBlank(labName) || isBlank(labAddr)) {
+            return json(false, "Pharmacy/Lab selection incomplete");
+        }
+
+        String ref = UUID.randomUUID().toString();
+        String message = String.format(
+                "Successfully sent fax to pharmacy [%s, %s] and laboratory [%s, %s]. Ref: %s",
+                phName, phAddr, labName, labAddr, ref
+        );
+        return json(true, message);
+    }
+
     // --- helpers ---
     private static Date parseOrDefault(String yyyyMMdd, LocalDate def) {
         if (yyyyMMdd == null || yyyyMMdd.isBlank()) {
@@ -140,5 +175,18 @@ public class DocTools {
 
     private static String blankToNull(String s) {
         return (s == null || s.isBlank()) ? null : s;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String json(boolean success, String message) {
+        return "{\"success\":" + success + ",\"message\":\"" + escape(message) + "\"}";
+    }
+
+    private static String escape(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,21 +182,38 @@ public class WorkflowService {
         return new DocumentsResponse(p, r);
     }
 
-    // SEND_FAX: simulate fax to chosen pharmacy & lab
+    // SEND_FAX: delegate to agent tool and return the tool's JSON result as FaxResponse
     public FaxResponse sendFax(Integer clientId) {
-        ensureClient(clientId);
-        Prescription p = prescriptionService.getLatestPrescriptionByClientId(clientId);
-        Requisition r = requisitionService.getLatestRequisitionByClientId(clientId);
-        if (p == null || r == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Documents not ready");
+        ensureClient(clientId); // keep resource existence check
+
+        String prompt = buildSendFaxPrompt(clientId);
+        String content;
+        try {
+            content = serviceChatClient
+                    .prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            return new FaxResponse(false, "Agent invocation failed: " + e.getMessage());
         }
-        if (isBlank(p.getPharmacyName()) || isBlank(p.getPharmacyAddress()) ||
-            isBlank(r.getLabName()) || isBlank(r.getLabAddress())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pharmacy/Lab selection incomplete");
+
+        // Parse strict JSON: {"success": boolean, "message": string}
+        boolean success = false;
+        String message = content;
+        try {
+            ObjectMapper om = new ObjectMapper();
+            JsonNode node = om.readTree(content);
+            if (node.has("success") && node.has("message")) {
+                success = node.path("success").asBoolean(false);
+                message = node.path("message").asText(message);
+            } else {
+                message = "Agent did not return the expected JSON format.";
+            }
+        } catch (Exception parseEx) {
+            message = "Agent response parsing failed: " + parseEx.getMessage();
         }
-        String msg = String.format("Successfully sent fax to pharmacy [%s, %s] and laboratory [%s, %s].",
-                p.getPharmacyName(), p.getPharmacyAddress(), r.getLabName(), r.getLabAddress());
-        return new FaxResponse(true, msg);
+        return new FaxResponse(success, message);
     }
 
     // ----- helpers -----
@@ -351,6 +369,21 @@ public class WorkflowService {
                 "- savePrescription(clientId, prescriberId, medicationName, medicationStrength, medicationForm, dosageInstructions, quantity, refillsAllowed, datePrescribed, expiryDate, pharmacyName, pharmacyAddress, status, notes)",
                 "- saveRequisition(clientId, requesterId, department, testType, testCode, clinicalInfo, dateRequested, priority, status, labName, labAddress, resultDate, notes)",
                 "Output: Reply with OK after the tools have completed."
+        );
+    }
+
+    // Build concise English prompt for agent to call the fax tool and return strict JSON
+    private String buildSendFaxPrompt(Integer clientId) {
+        return String.join("\n",
+                "Task: Simulate faxing the patient's latest prescription and requisition to the selected pharmacy and laboratory.",
+                "Patient: clientId = " + clientId + ".",
+                "Instructions:",
+                "- Use the tool sendFaxForClient(clientId) to perform validation and simulate faxing.",
+                "- Do not fabricate or change any data stored on the server.",
+                "- Return the tool output as the final answer.",
+                "Output format:",
+                "- Return a strict JSON object only (no markdown, no additional text):",
+                "  {\"success\": boolean, \"message\": string}"
         );
     }
 
