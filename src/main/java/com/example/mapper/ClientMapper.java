@@ -9,7 +9,7 @@ public interface ClientMapper {
     @Select("SELECT * FROM course_ehealth_client WHERE client_id = #{clientId}")
     Client selectById(@Param("clientId") Integer clientId);
 
-    @Select("SELECT * FROM course_ehealth_Client")
+    @Select("SELECT * FROM course_ehealth_client")
     List<Client> selectAll();
 
     @Insert("INSERT INTO course_ehealth_client (first_name, last_name, date_of_birth, gender, health_card_num, phone, email, address, postal_code, emergency_contact, notes) " +
